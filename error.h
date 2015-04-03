@@ -54,7 +54,8 @@
         program: source.c:123: open(path, O_RDONLY) == -1: No such file or directory: /no/such/path
 
       Be aware that not all system calls return -1 on error.  Check
-      manual page before using SYS().
+      manual page before using SYS().  This macro works with mmap()
+      since MAP_FAILED is essentially -1.
 
     MEM(expr);
     MEM(expr, format, ...);
@@ -76,12 +77,10 @@
     CHECK(expr, cond, action, format, ...);
       Generic macro that implements SYS() and MEM().  May be used like
 
-        void *ptr = CHECK(mmap(NULL, length, PROT_READ | PROT_WRITE,
-                               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0),
-                          == MAP_FAILED, die, "%m (length=%zu)", length);
+        char c = CHECK(fgetc(stdin), == EOF, die, "premature EOF");
 
-      (note the comma that separates arguments 'expr' (mmap()) and
-      'cond' (== MAP_FAILED)).
+      (note the comma that separates arguments 'expr' (fgetc()) and
+      'cond' (== EOF)).
 
     ERRNO(expr, action, format, ...);
       Generic macro that implements POSIX().  When 'expr' yields
@@ -181,18 +180,18 @@ extern char *program_invocation_short_name;
     __typeof__(expr) _kroki_res;                                \
     do                                                          \
       _kroki_res = (expr);                                      \
-    while (__builtin_expect(_kroki_res == -1 && errno == EINTR, \
-                            0));                                \
+    while (__builtin_expect(_kroki_res == (__typeof__(expr))-1  \
+                            && errno == EINTR, 0));             \
     _kroki_res;                                                 \
   })
 
 
-#define _KROKI_SYS(expr, exprstr, ...)          \
-  _KROKI_CHECK(expr, exprstr, == -1, "== -1",   \
+#define _KROKI_SYS(expr, exprstr, ...)                          \
+  _KROKI_CHECK(expr, exprstr, == (__typeof__(expr))-1, "== -1", \
                kroki_die, "%m" __VA_ARGS__)
 
-#define _KROKI_MEM(expr, exprstr, ...)                  \
-  _KROKI_CHECK(expr, exprstr, == NULL, "== NULL",       \
+#define _KROKI_MEM(expr, exprstr, ...)                                  \
+    _KROKI_CHECK(expr, exprstr, == (__typeof__(expr))NULL, "== NULL",   \
                kroki_die, "%m" __VA_ARGS__)
 
 #define _KROKI_POSIX(expr, exprstr, ...)        \
