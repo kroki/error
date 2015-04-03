@@ -5,7 +5,9 @@ install(FILES error.h DESTINATION include/kroki)
 set(CPACK_GENERATOR RPM)
 
 add_custom_target(version ALL
-    ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/version.cmake")
+    ${CMAKE_COMMAND} -DSOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/version.cmake"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/version.gen.in")
 
 set(CPACK_INSTALL_CMAKE_PROJECTS
     "${CMAKE_BINARY_DIR};${CMAKE_PROJECT_NAME};ALL;/")

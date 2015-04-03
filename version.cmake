@@ -1,8 +1,8 @@
 include(FindGit)
 
-if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
+if(GIT_FOUND AND EXISTS "${SOURCE_DIR}/.git")
   execute_process(COMMAND ${GIT_EXECUTABLE} describe --dirty
-                  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                  WORKING_DIRECTORY "${SOURCE_DIR}"
                   OUTPUT_VARIABLE TAG
                   OUTPUT_STRIP_TRAILING_WHITESPACE
                   ERROR_QUIET)
@@ -23,12 +23,12 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
     endif()
   else()
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                    WORKING_DIRECTORY "${SOURCE_DIR}"
                     OUTPUT_VARIABLE COUNT
                     OUTPUT_STRIP_TRAILING_WHITESPACE
                     ERROR_QUIET)
     execute_process(COMMAND ${GIT_EXECUTABLE} describe --dirty --always
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                    WORKING_DIRECTORY "${SOURCE_DIR}"
                     OUTPUT_VARIABLE ID
                     OUTPUT_STRIP_TRAILING_WHITESPACE
                     ERROR_QUIET)
@@ -45,6 +45,6 @@ else()
   set(CPACK_RPM_PACKAGE_RELEASE "1_dirty")
 endif()
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.gen.in"
+configure_file("${SOURCE_DIR}/version.gen.in"
                "${CMAKE_BINARY_DIR}/version.gen"
                @ONLY)
